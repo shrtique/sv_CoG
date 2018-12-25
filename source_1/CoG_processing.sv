@@ -21,12 +21,15 @@
 
 
 module CoG_processing#(
-  parameter DATA_WIDTH = 8,
-  parameter WIDTH      = 1280,
-  parameter HEIGHT     = 1024
+  parameter DATA_WIDTH = 8
+  //parameter WIDTH      = 1280,
+  //parameter HEIGHT     = 1024
 )(
   input  logic                  i_sys_clk,
   input  logic                  i_sys_aresetn,
+
+  input  logic [10:0]           WIDTH,
+  input  logic [10:0]           HEIGHT,
 
   input  logic [DATA_WIDTH-1:0] i_data_image,
   input  logic                  i_data_valid,
