@@ -114,10 +114,20 @@ logic [C_S00_AXI_DATA_WIDTH-1:0] slv_reg0;
 	//SIGNALS
     logic [10:0] img_width;
     logic [10:0] img_height;
-    logic        set_new_param;
+    logic [0:1]  set_new_param; 
     //
     //
-    assign set_new_param = slv_reg0[31];
+
+
+  // synch stage   
+  always_ff @( posedge i_sys_clk, negedge i_sys_aresetn ) begin 
+    if ( ~i_sys_aresetn ) begin
+      set_new_param <= '0;
+    end else begin
+      set_new_param <= {slv_reg0[31],set_new_param[0]};
+    end
+  end
+
     //
 	//registering new parameters
 	always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
@@ -126,7 +136,7 @@ logic [C_S00_AXI_DATA_WIDTH-1:0] slv_reg0;
         img_width  <= 'b0;
         img_height <= 'b0;
       end else begin
-        if ( set_new_param ) begin
+        if ( set_new_param[1] ) begin
           img_width  <= slv_reg0[10:0];
           img_height <= slv_reg0[23:13];
         end    
