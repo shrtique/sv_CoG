@@ -78,7 +78,7 @@ CoG_receiver_FSM #(
   .i_sys_clk          ( clk ),
   .i_sys_aresetn      ( aresetn ),
  
-  .s_axis_data        ( tdata ),
+  .s_axis_tdata       ( tdata ),
   .s_axis_tvalid      ( tvalid ),
   .s_axis_tuser       ( tuser ),
   .s_axis_tlast       ( tlast ),
@@ -164,7 +164,7 @@ CoG_transmitter_FSM#(
   .i_end_of_frame_delayed ( end_of_frame_from_proc ),
   .i_new_frame_delayed    ( new_frame_from_proc ),
 
-  .m_axis_data            (  ),
+  .m_axis_tdata           (  ),
   .m_axis_tvalid          (  ),
   .m_axis_tuser           (  ),
   .m_axis_tlast           (  )

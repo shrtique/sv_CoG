@@ -78,25 +78,6 @@ logic [10:0] pixels_in_fig, pixels_in_fig_reg_st_1;
 logic        stage_1_valid, stage_1_valid_reg;
 logic        end_of_fig_del_st_1;
 
-always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
-  begin 
-    if ( ~i_sys_aresetn ) begin
-      I_squared_reg_st_1     <= 0;
-      pixels_in_fig_reg_st_1 <= 0;
-      stage_1_valid_reg      <= 1'b0; 
-  
-      end_of_fig_del_st_1    <= 1'b0; 
-
-    end else begin
-      I_squared_reg_st_1     <= I_squared;
-      pixels_in_fig_reg_st_1 <= pixels_in_fig;
-      stage_1_valid_reg      <= stage_1_valid;
-
-      end_of_fig_del_st_1    <= i_end_of_fig; 
-    
-    end
-end
-
 always_comb
   begin
   	I_squared     = I_squared_reg_st_1;
@@ -116,7 +97,29 @@ always_comb
       pixels_in_fig = 0;
     end	
 
-  end  	
+  end  
+
+
+//let's make it with sync reset, for DSP
+
+always_ff @( posedge i_sys_clk )
+  begin 
+    if ( ~i_sys_aresetn ) begin
+      I_squared_reg_st_1     <= 0;
+      pixels_in_fig_reg_st_1 <= 0;
+      stage_1_valid_reg      <= 1'b0; 
+  
+      end_of_fig_del_st_1    <= 1'b0; 
+
+    end else begin
+      I_squared_reg_st_1     <= I_squared;
+      pixels_in_fig_reg_st_1 <= pixels_in_fig;
+      stage_1_valid_reg      <= stage_1_valid;
+
+      end_of_fig_del_st_1    <= i_end_of_fig; 
+    
+    end
+end	
 //
 //
 
@@ -132,7 +135,24 @@ logic [15:0] I_squared_reg_st_2; //register for value form stage 1
 logic        end_of_fig_del_st_2;
 logic [10:0] pixels_in_fig_reg_st_2;
 
-always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
+always_comb
+  begin
+    I_mult_coord  = I_mult_coord_reg;
+    stage_2_valid = 1'b0;
+
+    if ( stage_1_valid_reg ) begin
+      I_mult_coord  = I_squared_reg_st_1 * pixels_in_fig_reg_st_1;
+      stage_2_valid = 1'b1;
+    end
+
+    if ( end_of_fig_del_st_2 ) begin
+      I_mult_coord  = 0;
+    end 
+  end
+ //
+ //
+
+always_ff @( posedge i_sys_clk )
   begin 
     if ( ~i_sys_aresetn ) begin
       I_mult_coord_reg       <= 0;
@@ -153,22 +173,38 @@ always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
     end
 end
 
-always_comb
-  begin
-  	I_mult_coord  = I_mult_coord_reg;
-  	stage_2_valid = 1'b0;
 
-    if ( stage_1_valid_reg ) begin
-      I_mult_coord  = I_squared_reg_st_1 * pixels_in_fig_reg_st_1;
-      stage_2_valid = 1'b1;
+
+//fuck... we should create one extra stage here, just to pipiline the output from DSP
+//unfortunately the design is awkward, so lets put some additional signals here...
+logic [22:0] I_mult_coord_extra_reg;
+logic        stage_extra_valid_reg;
+
+logic [15:0] I_squared_reg_st_extra;
+logic        end_of_fig_del_st_extra;
+logic [10:0] pixels_in_fig_reg_st_extra;
+
+always_ff @( posedge i_sys_clk )
+  begin 
+    if ( ~i_sys_aresetn ) begin
+       I_mult_coord_extra_reg     <= '0;
+       stage_extra_valid_reg      <= '0;
+
+       I_squared_reg_st_extra     <= '0;
+       end_of_fig_del_st_extra    <= '0;
+       pixels_in_fig_reg_st_extra <= '0;
+    end else begin
+       I_mult_coord_extra_reg     <= I_mult_coord_reg;
+       stage_extra_valid_reg      <= stage_2_valid_reg;
+
+       I_squared_reg_st_extra     <= I_squared_reg_st_2;
+       end_of_fig_del_st_extra    <= end_of_fig_del_st_2;
+       pixels_in_fig_reg_st_extra <= pixels_in_fig_reg_st_2;
     end
+end
 
-    if ( end_of_fig_del_st_2 ) begin
-      I_mult_coord  = 0;
-    end	
-  end
- //
- //
+//
+//
 
 
 //3.1 Calculating sums
@@ -185,7 +221,38 @@ logic        end_of_fig_del_st_3;
 logic        dummy_1; //same shit, cant see in SIM end_of_fig_del_st_3
 logic        dummy_2;
 
-always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
+always_comb
+  begin
+    
+    sum_of_I            = o_sum_of_I_reg;
+    sum_of_I_mult_coord = o_sum_of_I_mult_coord_reg;
+    point_is_valid      = 1'b0;
+
+
+    if ( stage_extra_valid_reg ) begin
+      sum_of_I            = o_sum_of_I_reg + I_squared_reg_st_extra;
+      sum_of_I_mult_coord = o_sum_of_I_mult_coord_reg + I_mult_coord_extra_reg;
+    end
+
+    //we should show that the last point of figure's processed,..
+    //..so we use end_of_fig of previous stage, also..
+    //..check that fig has enough pixels (>= 3) and at the same time it's not too big (<= 100)
+    if ( ( end_of_fig_del_st_extra )             &&
+       ( pixels_in_fig_reg_st_extra > 11'd2 )  &&
+       ( pixels_in_fig_reg_st_extra < 11'd101) 
+       ) begin
+      point_is_valid = 1'b1;
+    end 
+
+    if ( end_of_fig_del_st_3 ) begin
+      sum_of_I_mult_coord = 0;
+      sum_of_I            = 0;  
+    end 
+  end
+ //
+ //
+
+always_ff @( posedge i_sys_clk )
   begin 
     if ( ~i_sys_aresetn ) begin
      
@@ -200,40 +267,10 @@ always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
       o_sum_of_I_mult_coord_reg <= sum_of_I_mult_coord;
       o_point_is_valid_reg      <= point_is_valid;
 
-      end_of_fig_del_st_3       <= end_of_fig_del_st_2;
+      end_of_fig_del_st_3       <= end_of_fig_del_st_extra;
     end
 end
 
-always_comb
-  begin
-  	
-    sum_of_I            = o_sum_of_I_reg;
-    sum_of_I_mult_coord = o_sum_of_I_mult_coord_reg;
-    point_is_valid      = 1'b0;
-
-
-    if ( stage_2_valid_reg ) begin
-      sum_of_I            = o_sum_of_I_reg + I_squared_reg_st_2;
-      sum_of_I_mult_coord = o_sum_of_I_mult_coord_reg + I_mult_coord_reg;
-    end
-
-    //we should show that the last point of figure's processed,..
-    //..so we use end_of_fig of previous stage, also..
-    //..check that fig has enough pixels (>= 3) and at the same time it's not too big (<= 100)
-    if ( ( end_of_fig_del_st_2 )             &&
-    	 ( pixels_in_fig_reg_st_2 > 11'd2 )  &&
-    	 ( pixels_in_fig_reg_st_2 < 11'd101) 
-       ) begin
-      point_is_valid = 1'b1;
-    end	
-
-    if ( end_of_fig_del_st_3 ) begin
-      sum_of_I_mult_coord = 0;
-      sum_of_I            = 0;  
-    end	
-  end
- //
- //
 
 
 //3.2. Save income start_point with start_of_fig,..
@@ -247,7 +284,7 @@ logic        new_start_point, new_start_point_reg;
 
 //INPUT START POINT(SP) DETECTION FSM 
 //signals
-typedef enum logic [2:0] {IDLE, NEW_SP} i_statetype;
+typedef enum logic {IDLE, NEW_SP} i_statetype;
 i_statetype i_sp_state, i_sp_nextstate;
 
 always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
@@ -300,7 +337,7 @@ always_comb
 
 //3.3
 //OUTPUT START POINT (SP) FSM
-typedef enum logic [2:0] {RDY_TO_GRAB, BUSY} o_statetype;
+typedef enum logic {RDY_TO_GRAB, BUSY} o_statetype;
 o_statetype o_sp_state, o_sp_nextstate;
 
 logic [10:0] o_start_point;
@@ -358,9 +395,9 @@ always_comb
 //the length of delay -> number of calculation stages of this module
 
 //SIGNALS
-logic [0:2] end_of_line_delay_line;
-logic [0:2] end_of_frame_delay_line;
-logic [0:2] new_frame_delay_line;
+logic [0:3] end_of_line_delay_line;
+logic [0:3] end_of_frame_delay_line;
+logic [0:3] new_frame_delay_line;
 
 logic       dummy_3;
 logic       dummy_4;
@@ -374,15 +411,15 @@ always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
       end_of_frame_delay_line <= '{ default: 'b0 };
       new_frame_delay_line    <= '{ default: 'b0 };
     end else begin
-      end_of_line_delay_line  <= { i_end_of_line_for_del, end_of_line_delay_line[0:1] };
-      end_of_frame_delay_line <= { i_end_of_frame_for_del, end_of_frame_delay_line[0:1] };
-      new_frame_delay_line    <= { i_new_frame_for_del, new_frame_delay_line[0:1] };
+      end_of_line_delay_line  <= { i_end_of_line_for_del, end_of_line_delay_line[0:2] };
+      end_of_frame_delay_line <= { i_end_of_frame_for_del, end_of_frame_delay_line[0:2] };
+      new_frame_delay_line    <= { i_new_frame_for_del, new_frame_delay_line[0:2] };
     end
 end
 
-assign o_end_of_line_delayed   = end_of_line_delay_line[2];
-assign o_end_of_frame_delayed  = end_of_frame_delay_line[2];
-assign o_new_frame_delayed     = new_frame_delay_line[2];
+assign o_end_of_line_delayed   = end_of_line_delay_line[3];
+assign o_end_of_frame_delayed  = end_of_frame_delay_line[3];
+assign o_new_frame_delayed     = new_frame_delay_line[3];
 //
 //
 endmodule
