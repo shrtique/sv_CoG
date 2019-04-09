@@ -113,8 +113,10 @@ end
 
 
 //2. grabing pixels from AXIS if they are valid
-always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
+
+always_ff @( posedge i_sys_clk )
   begin
+    
    if   ( ~i_sys_aresetn ) begin
 
      data_image_buffer <= '{default:'h00};
@@ -158,10 +160,10 @@ always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
 
       o_end_of_line_reg        <= 1'b0;
       o_end_of_frame_reg       <= 1'b0;
-	  o_new_frame_reg          <= 1'b0;
+      o_new_frame_reg          <= 1'b0;
 
-	  reset_tuser_detector_reg <= 1'b0;
-	  reset_eol_detector_reg   <= 1'b0;
+      reset_tuser_detector_reg <= 1'b0;
+      reset_eol_detector_reg   <= 1'b0;
       reset_eof_detector_reg   <= 1'b0;
 
     end else begin

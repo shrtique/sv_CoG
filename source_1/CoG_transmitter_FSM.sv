@@ -105,7 +105,7 @@ always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
 
 
     end else begin
-      m_axis_tdata                  <= axis_data;
+      m_axis_tdata                 <= axis_data;
       m_axis_tvalid                <= axis_tvalid;	
       m_axis_tuser                 <= axis_tuser;
       m_axis_tlast                 <= axis_tlast;

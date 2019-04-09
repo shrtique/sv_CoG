@@ -84,34 +84,34 @@ logic                  new_frame_from_proc;
 
 CoG_processing#(
   .DATA_WIDTH                ( DATA_WIDTH ),
-  .WIDTH                     ( WIDTH ),
-  .HEIGHT                    ( HEIGHT )
+  .WIDTH                     ( WIDTH      ),
+  .HEIGHT                    ( HEIGHT     )
 
 ) data_processing (
-  .i_sys_clk                 ( i_sys_clk ),
-  .i_sys_aresetn             ( i_sys_aresetn ),
+  .i_sys_clk                 ( i_sys_clk                     ),
+  .i_sys_aresetn             ( i_sys_aresetn                 ),
 
-  .i_data_image              ( data_from_receiver ),
-  .i_data_valid              ( data_from_receiver_valid ),
+  .i_data_image              ( data_from_receiver            ),
+  .i_data_valid              ( data_from_receiver_valid      ),
 
-  .i_start_point_value       ( start_point_from_receiver ),
-  .i_start_of_fig            ( start_of_fig_from_receiver ),
-  .i_end_of_fig              ( end_of_fig_from_receiver ),
+  .i_start_point_value       ( start_point_from_receiver     ),
+  .i_start_of_fig            ( start_of_fig_from_receiver    ),
+  .i_end_of_fig              ( end_of_fig_from_receiver      ),
 
   //.o_pixels_in_fig_reg       (  ),
-  .o_start_point_reg         ( start_point_from_proc ),
+  .o_start_point_reg         ( start_point_from_proc         ),
   .o_sum_of_I_mult_coord_reg ( sum_of_I_mult_coord_from_proc ),
-  .o_sum_of_I_reg            ( sum_of_I_from_proc ),
-  .o_point_is_valid_reg      ( point_is_valid_from_proc ),
+  .o_sum_of_I_reg            ( sum_of_I_from_proc            ),
+  .o_point_is_valid_reg      ( point_is_valid_from_proc      ),
   //
   //
-  .i_end_of_line_for_del     ( end_of_line_from_receiver ),
-  .i_end_of_frame_for_del    ( end_of_frame_from_receiver ),
-  .i_new_frame_for_del       ( new_frame_from_receiver),
+  .i_end_of_line_for_del     ( end_of_line_from_receiver     ),
+  .i_end_of_frame_for_del    ( end_of_frame_from_receiver    ),
+  .i_new_frame_for_del       ( new_frame_from_receiver       ),
 
-  .o_end_of_line_delayed     ( end_of_line_from_proc ),
-  .o_end_of_frame_delayed    ( end_of_frame_from_proc ),
-  .o_new_frame_delayed       ( new_frame_from_proc) 
+  .o_end_of_line_delayed     ( end_of_line_from_proc         ),
+  .o_end_of_frame_delayed    ( end_of_frame_from_proc        ),
+  .o_new_frame_delayed       ( new_frame_from_proc           ) 
    
 );
 //
@@ -123,22 +123,22 @@ CoG_transmitter_FSM#(
   .DATA_WIDTH ( DATA_WIDTH )
 
 ) data_transmitter (
-  .i_sys_clk              ( i_sys_clk ),
-  .i_sys_aresetn          ( i_sys_aresetn ),
+  .i_sys_clk              ( i_sys_clk                     ),
+  .i_sys_aresetn          ( i_sys_aresetn                 ),
 
   .i_sum_of_I_mult_coord  ( sum_of_I_mult_coord_from_proc ),
-  .i_sum_of_I             ( sum_of_I_from_proc ),
-  .i_start_point          ( start_point_from_proc ),
-  .i_point_is_valid       ( point_is_valid_from_proc ),
+  .i_sum_of_I             ( sum_of_I_from_proc            ),
+  .i_start_point          ( start_point_from_proc         ),
+  .i_point_is_valid       ( point_is_valid_from_proc      ),
 
-  .i_end_of_line_delayed  ( end_of_line_from_proc ),
-  .i_end_of_frame_delayed ( end_of_frame_from_proc ),
-  .i_new_frame_delayed    ( new_frame_from_proc ),
+  .i_end_of_line_delayed  ( end_of_line_from_proc         ),
+  .i_end_of_frame_delayed ( end_of_frame_from_proc        ),
+  .i_new_frame_delayed    ( new_frame_from_proc           ),
 
-  .m_axis_tdata            ( m_axis_tdata ),
-  .m_axis_tvalid          ( m_axis_tvalid ),
-  .m_axis_tuser           ( m_axis_tuser ),
-  .m_axis_tlast           ( m_axis_tlast )
+  .m_axis_tdata           ( m_axis_tdata                  ),
+  .m_axis_tvalid          ( m_axis_tvalid                 ),
+  .m_axis_tuser           ( m_axis_tuser                  ),
+  .m_axis_tlast           ( m_axis_tlast                  )
   
 );
 //

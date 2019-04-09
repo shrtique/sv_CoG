@@ -404,17 +404,21 @@ logic       dummy_4;
 logic       dummy_5;
 logic       dummy_6;
 
-always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
+
+//lets try to use them without reset at all. They say it will use LUT shifter
+always_ff @( posedge i_sys_clk )
   begin 
+    /*
     if ( ~i_sys_aresetn ) begin
       end_of_line_delay_line  <= '{ default: 'b0 };
       end_of_frame_delay_line <= '{ default: 'b0 };
       new_frame_delay_line    <= '{ default: 'b0 };
     end else begin
+     */ 
       end_of_line_delay_line  <= { i_end_of_line_for_del, end_of_line_delay_line[0:2] };
       end_of_frame_delay_line <= { i_end_of_frame_for_del, end_of_frame_delay_line[0:2] };
       new_frame_delay_line    <= { i_new_frame_for_del, new_frame_delay_line[0:2] };
-    end
+    //end
 end
 
 assign o_end_of_line_delayed   = end_of_line_delay_line[3];
