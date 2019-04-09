@@ -28,7 +28,7 @@ module CoG_receiver_FSM#(
   input  logic                    i_sys_clk,
   input  logic                    i_sys_aresetn,
 
-  input  logic [3*DATA_WIDTH-1:0] s_axis_tdata,
+  input  logic [2*DATA_WIDTH-1:0] s_axis_tdata,
   input  logic                    s_axis_tvalid,
   input  logic                    s_axis_tuser,
   input  logic                    s_axis_tlast,
@@ -125,7 +125,7 @@ always_ff @( posedge i_sys_clk, negedge i_sys_aresetn )
      //if tvalid - shift right current reg and put new data 
      if ( s_axis_tvalid ) begin
 
-       data_image_buffer <= { s_axis_tdata[3*DATA_WIDTH-1:2*DATA_WIDTH], data_image_buffer[0:1] };
+       data_image_buffer <= { s_axis_tdata[DATA_WIDTH-1:0], data_image_buffer[0:1] };
        data_mask_buffer  <= { s_axis_tdata[2*DATA_WIDTH-1:DATA_WIDTH], data_mask_buffer[0:1] };
        
      end	

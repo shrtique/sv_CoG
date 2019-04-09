@@ -1,23 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 11/14/2018 05:40:26 PM
-// Design Name: 
-// Module Name: CoG_top_module
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 
 module CoG_top_module #(
@@ -29,7 +10,7 @@ module CoG_top_module #(
   input  logic                    i_sys_clk,
   input  logic                    i_sys_aresetn,
 
-  input  logic [3*DATA_WIDTH-1:0] s_axis_tdata,
+  input  logic [2*DATA_WIDTH-1:0] s_axis_tdata,
   input  logic                    s_axis_tvalid,
   input  logic                    s_axis_tuser,
   input  logic                    s_axis_tlast,
@@ -61,29 +42,29 @@ logic                  new_frame_from_receiver;
 
 CoG_receiver_FSM #(
   .DATA_WIDTH       ( DATA_WIDTH ),
-  .WIDTH            ( WIDTH ),
-  .HEIGHT           ( HEIGHT  )
+  .WIDTH            ( WIDTH      ),
+  .HEIGHT           ( HEIGHT     )
 
 ) data_receiver (
-  .i_sys_clk          ( i_sys_clk ),
-  .i_sys_aresetn      ( i_sys_aresetn ),
+  .i_sys_clk          ( i_sys_clk                  ),
+  .i_sys_aresetn      ( i_sys_aresetn              ),
  
-  .s_axis_tdata        ( s_axis_tdata ),
-  .s_axis_tvalid      ( s_axis_tvalid ),
-  .s_axis_tuser       ( s_axis_tuser ),
-  .s_axis_tlast       ( s_axis_tlast ),
-  .s_axis_tready      ( s_axis_tready ),
+  .s_axis_tdata       ( s_axis_tdata               ),
+  .s_axis_tvalid      ( s_axis_tvalid              ),
+  .s_axis_tuser       ( s_axis_tuser               ),
+  .s_axis_tlast       ( s_axis_tlast               ),
+  .s_axis_tready      ( s_axis_tready              ),
 
-  .data_image_reg     ( data_from_receiver ),
-  .data_valid_reg     ( data_from_receiver_valid ),
+  .data_image_reg     ( data_from_receiver         ),
+  .data_valid_reg     ( data_from_receiver_valid   ),
 
-  .start_point_reg    ( start_point_from_receiver ),
+  .start_point_reg    ( start_point_from_receiver  ),
   .start_of_fig_reg   ( start_of_fig_from_receiver ),
-  .end_of_fig_reg     ( end_of_fig_from_receiver ),
+  .end_of_fig_reg     ( end_of_fig_from_receiver   ),
 
-  .o_end_of_line_reg  ( end_of_line_from_receiver ),
+  .o_end_of_line_reg  ( end_of_line_from_receiver  ),
   .o_end_of_frame_reg ( end_of_frame_from_receiver ),
-  .o_new_frame_reg    ( new_frame_from_receiver )
+  .o_new_frame_reg    ( new_frame_from_receiver    )
 
 );
 //
