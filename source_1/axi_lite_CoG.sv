@@ -32,7 +32,7 @@
         input  logic                    i_sys_clk,
         input  logic                    i_sys_aresetn,
 
-		input  logic [3*DATA_WIDTH-1:0] s_axis_tdata,
+        input  logic [2*DATA_WIDTH-1:0] s_axis_tdata,
         input  logic                    s_axis_tvalid,
         input  logic                    s_axis_tuser,
         input  logic                    s_axis_tlast,

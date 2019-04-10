@@ -35,10 +35,10 @@ localparam HEIGHT     = 10;
 logic clk;
 logic aresetn;
 
-logic [3*DATA_WIDTH-1:0] tdata;
-logic           tvalid;
-logic           tuser;
-logic           tlast;           
+logic [2*DATA_WIDTH-1:0] tdata;
+logic                    tvalid;
+logic                    tuser;
+logic                    tlast;           
 //
 //
 tb_video_stream #(
@@ -70,15 +70,16 @@ logic                  end_of_frame_from_receiver;
 logic                  new_frame_from_receiver;
 //
 CoG_receiver_FSM #(
-  .DATA_WIDTH       ( DATA_WIDTH ),
-  .WIDTH            ( WIDTH ),
-  .HEIGHT           ( HEIGHT  )
+  .DATA_WIDTH       ( DATA_WIDTH )
 
 ) data_receiver (
   .i_sys_clk          ( clk ),
   .i_sys_aresetn      ( aresetn ),
+
+  .WIDTH              ( WIDTH  ),
+  .HEIGHT             ( HEIGHT ),
  
-  .s_axis_data        ( tdata ),
+  .s_axis_tdata       ( tdata ),
   .s_axis_tvalid      ( tvalid ),
   .s_axis_tuser       ( tuser ),
   .s_axis_tlast       ( tlast ),
@@ -113,9 +114,8 @@ logic                  new_frame_from_proc;
 
 
 CoG_processing#(
-  .DATA_WIDTH                ( DATA_WIDTH ),
-  .WIDTH                     ( WIDTH ),
-  .HEIGHT                    ( HEIGHT )
+  .DATA_WIDTH                ( DATA_WIDTH )
+
 
 ) data_processing (
   .i_sys_clk                 ( clk ),
@@ -164,7 +164,7 @@ CoG_transmitter_FSM#(
   .i_end_of_frame_delayed ( end_of_frame_from_proc ),
   .i_new_frame_delayed    ( new_frame_from_proc ),
 
-  .m_axis_data            (  ),
+  .m_axis_tdata           (  ),
   .m_axis_tvalid          (  ),
   .m_axis_tuser           (  ),
   .m_axis_tlast           (  )

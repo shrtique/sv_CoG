@@ -32,7 +32,7 @@ module CoG_top_module #(
   input  logic [10:0]             WIDTH,
   input  logic [10:0]             HEIGHT,
 
-  input  logic [3*DATA_WIDTH-1:0] s_axis_tdata,
+  input  logic [2*DATA_WIDTH-1:0] s_axis_tdata,
   input  logic                    s_axis_tvalid,
   input  logic                    s_axis_tuser,
   input  logic                    s_axis_tlast,
@@ -123,8 +123,6 @@ CoG_processing#(
   .i_sys_clk                 ( i_sys_clk                     ),
   .i_sys_aresetn             ( i_sys_aresetn                 ),
 
-  .WIDTH                     ( img_width                     ),
-  .HEIGHT                    ( img_height                    ),
 
   .i_data_image              ( data_from_receiver            ),
   .i_data_valid              ( data_from_receiver_valid      ),

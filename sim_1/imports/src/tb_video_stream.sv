@@ -28,10 +28,10 @@ module tb_video_stream #(
   output logic         sys_clk,
   output logic         sys_aresetn,
 
-  output logic [3*N-1:0] reg_video_tdata,
-  output logic         reg_video_tvalid,
-  output logic         reg_video_tlast,
-  output logic         reg_video_tuser
+  output logic [2*N-1:0] reg_video_tdata,
+  output logic           reg_video_tvalid,
+  output logic           reg_video_tlast,
+  output logic           reg_video_tuser
   );
 
 
@@ -184,7 +184,7 @@ always_ff @( posedge clk, negedge aresetn )
 
      pause_counter_reg <= 4'h0;
    end else begin
-   	 reg_video_tdata   <= {video_img, video_mask, 8'h00};
+   	 reg_video_tdata   <= {video_mask, video_img};
      reg_video_tvalid  <= video_tvalid;
      reg_video_tlast   <= video_tlast;
      reg_video_tuser   <= video_tuser;
@@ -198,8 +198,8 @@ always_ff @( posedge clk, negedge aresetn )
 always_comb
  begin
 
-   video_img      = reg_video_tdata[23:16];
-   video_mask     = reg_video_tdata[15:8];
+   video_img      = reg_video_tdata[N-1:0];
+   video_mask     = reg_video_tdata[2*N-1:N];
    video_tvalid   = 1'b0;  
    video_tlast    = 1'b0;
    video_tuser    = 1'b0;
